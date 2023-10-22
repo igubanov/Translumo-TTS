@@ -25,6 +25,7 @@ namespace Translumo.TTS
                 TTSEngines.None => new NoneTTSEngine(),
                 TTSEngines.WindowsTTS => new WindowsTTSEngine(GetLangCode(ttsConfiguration)),
                 TTSEngines.SileroTTS => new SileroTTSEngine(_pythonEngine, GetLangCode(ttsConfiguration)),
+                TTSEngines.YandexTTS => new YandexTTSEngine(GetLangCode(ttsConfiguration)),
                 _ => throw new NotSupportedException()
             };
 
