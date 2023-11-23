@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,6 @@ namespace Translumo.MVVM.ViewModels
         public TranslationConfiguration Model { get; set; }
 
         public TtsConfiguration TtsSettings { get; set; }
-
 
         public ObservableCollection<ProxyCardItem> ProxyCollection
         {

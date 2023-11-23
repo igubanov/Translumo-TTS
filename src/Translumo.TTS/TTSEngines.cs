@@ -5,5 +5,6 @@
         None = 0,
         WindowsTTS = 1,
         SileroTTS = 2,
+        YandexTTS = 3,
     }
 }
