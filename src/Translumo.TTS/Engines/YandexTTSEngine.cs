@@ -78,18 +78,19 @@ public class YandexTTSEngine : ITTSEngine
 
     private static Dictionary<string, string[]> SupportedVoices()
     {
-       
-        var voices = new Dictionary<string, string[]>()
-        {
-            { "ru-RU", new[] {  "jane", "oksana", "alyss", "omazh", "ermil", "zahar" }},
-            //{ "uz-UZ", new[] { "nigora" }},
-            //{ "de-DE", new[] { "lea" }},
-            //{ "en-US", new[] { "john" }},
-            //{ "kk-KK", new[] { "amira", "madi" }},
-            //{ "ALL: 'en': 'en_US','ru_RU','uk_UK ,'tr_TR',", new[] {  "jane", "oksana", "alyss", "omazh", "ermil", "zahar" }}, //"alena","filipp","madirus",
-
-            //{ "ru-RU", new [] {"alyss", "dude", "erkanyavas", "ermil", "ermilov", "jane", "kolya", "kostya", "levitan", "nastya", "nick", "oksana", "omazh", "sasha", "silaerkan", "smoky", "tanya", "voicesearch", "zahar", "zhenya", "zombie" } },
+        var listOfVoices = new[] {
+            // dictor dialog voices: zahar, ermil, filipp,|  jane, omazh, alena
+            "zahar", "ermil",  "dude", "jane", "omazh", "oksana",
+            // additional voices
+            "alyss", "erkanyavas", "ermilov", "kolya", "kostya", "levitan", "nastya", "nick", "sasha", "silaerkan", "smoky", "tanya", "voicesearch", "zhenya", "zombie"
         };
-        return voices;
+
+        return new Dictionary<string, string[]>()
+        {
+            // dictor dialog voices: zahar, ermil, filipp,|  jane, omazh, alena
+            { "ru-RU", listOfVoices},
+            { "en-US", listOfVoices},
+            { "tr-TR", listOfVoices},
+        };
     }
 }
