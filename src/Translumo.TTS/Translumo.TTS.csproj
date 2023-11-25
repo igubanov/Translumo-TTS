@@ -16,4 +16,14 @@
     <ProjectReference Include="..\Translumo.Utils\Translumo.Utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="multi-voice-configs\*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="multi-voice-configs\y-broken.json" />
+  </ItemGroup>
+
 </Project>

@@ -2,6 +2,7 @@
 using Translumo.Infrastructure.Language;
 using Translumo.Infrastructure.Python;
 using Translumo.TTS.Engines;
+using Translumo.TTS.Engines.MultiVoiceTTS;
 using Translumo.Utils.Extensions;
 
 namespace Translumo.TTS
@@ -25,25 +26,31 @@ namespace Translumo.TTS
 
         public ITTSEngine CreateTtsEngine(TtsConfiguration ttsConfiguration)
         {
-            ITTSEngine ttsEngine = ttsConfiguration.TtsSystem switch
+            var ttsEngine = CreateTtsEngine(GetLangCode(ttsConfiguration), ttsConfiguration.TtsSystem);
+
+            var voices = ttsEngine.GetVoices();
+            UpdateAvailableAndCurrentVoiceAsync(ttsConfiguration, voices).ConfigureAwait(false);
+            return ttsEngine;
+        }
+
+        public ITTSEngine CreateTtsEngine(string langCode, TTSEngines engine)
+        {
+            return engine switch
             {
                 TTSEngines.None => new NoneTTSEngine(),
-                TTSEngines.WindowsTTS => new WindowsTTSEngine(GetLangCode(ttsConfiguration)),
-                TTSEngines.SileroTTS => new SileroTTSEngine(_pythonEngine, GetLangCode(ttsConfiguration)),
-                TTSEngines.YandexTTS => new YandexTTSEngine(GetLangCode(ttsConfiguration)),
+                TTSEngines.WindowsTTS => new WindowsTTSEngine(langCode),
+                TTSEngines.SileroTTS => new SileroTTSEngine(_pythonEngine, langCode),
+                TTSEngines.YandexTTS => new YandexTTSEngine(langCode),
+                TTSEngines.MultiVoiceTTS => new MultiVoiceTTSEngine(langCode, this),
                 _ => throw new NotSupportedException()
             };
-
-            UpdateAvailableAndCurrentVoiceAsync(ttsConfiguration, ttsEngine).ConfigureAwait(false);
-            return ttsEngine;
         }
 
         private string GetLangCode(TtsConfiguration ttsConfiguration) =>
             _languageService.GetLanguageDescriptor(ttsConfiguration.TtsLanguage).Code;
 
-        private async Task UpdateAvailableAndCurrentVoiceAsync(TtsConfiguration ttsConfiguration, ITTSEngine ttsEngine)
+        private async Task UpdateAvailableAndCurrentVoiceAsync(TtsConfiguration ttsConfiguration, string[] voices)
         {
-            var voices = ttsEngine.GetVoices();
             var currentVoice = voices.Contains(ttsConfiguration.CurrentVoice)
                 ? ttsConfiguration.CurrentVoice
                 : voices.First();
