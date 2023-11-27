@@ -11,17 +11,15 @@ namespace Translumo.TTS
     {
         private readonly LanguageService _languageService;
         private readonly PythonEngineWrapper _pythonEngine;
+        private readonly IObserverAvailableVoices _observerAvailableVoices;
         private readonly ILogger _logger;
-        private readonly TaskScheduler _uiScheduler;
-        private CancellationTokenSource _cancelationTokenSource;
 
-        public TtsFactory(LanguageService languageService, PythonEngineWrapper pythonEngine, ILogger<TtsFactory> logger)
+        public TtsFactory(LanguageService languageService, PythonEngineWrapper pythonEngine, IObserverAvailableVoices observerAvailableVoices, ILogger<TtsFactory> logger)
         {
             _languageService = languageService;
             _pythonEngine = pythonEngine;
+            _observerAvailableVoices = observerAvailableVoices;
             _logger = logger;
-            _uiScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-            _cancelationTokenSource = new CancellationTokenSource();
         }
 
         public ITTSEngine CreateTtsEngine(TtsConfiguration ttsConfiguration)
@@ -29,53 +27,21 @@ namespace Translumo.TTS
             var ttsEngine = CreateTtsEngine(GetLangCode(ttsConfiguration), ttsConfiguration.TtsSystem);
 
             var voices = ttsEngine.GetVoices();
-            UpdateAvailableAndCurrentVoiceAsync(ttsConfiguration, voices).ConfigureAwait(false);
+            _observerAvailableVoices.UpdateVoice(voices);
             return ttsEngine;
         }
 
-        public ITTSEngine CreateTtsEngine(string langCode, TTSEngines engine)
+        public ITTSEngine CreateTtsEngine(string langCode, TTSEngines engine) => engine switch
         {
-            return engine switch
-            {
-                TTSEngines.None => new NoneTTSEngine(),
-                TTSEngines.WindowsTTS => new WindowsTTSEngine(langCode),
-                TTSEngines.SileroTTS => new SileroTTSEngine(_pythonEngine, langCode),
-                TTSEngines.YandexTTS => new YandexTTSEngine(langCode),
-                TTSEngines.MultiVoiceTTS => new MultiVoiceTTSEngine(langCode, this),
-                _ => throw new NotSupportedException()
-            };
-        }
+            TTSEngines.None => new NoneTTSEngine(),
+            TTSEngines.WindowsTTS => new WindowsTTSEngine(langCode),
+            TTSEngines.SileroTTS => new SileroTTSEngine(_pythonEngine, langCode),
+            TTSEngines.YandexTTS => new YandexTTSEngine(langCode),
+            TTSEngines.MultiVoiceTTS => new MultiVoiceTTSEngine(langCode, this),
+            _ => throw new NotSupportedException()
+        };
 
         private string GetLangCode(TtsConfiguration ttsConfiguration) =>
             _languageService.GetLanguageDescriptor(ttsConfiguration.TtsLanguage).Code;
-
-        private async Task UpdateAvailableAndCurrentVoiceAsync(TtsConfiguration ttsConfiguration, string[] voices)
-        {
-            var currentVoice = voices.Contains(ttsConfiguration.CurrentVoice)
-                ? ttsConfiguration.CurrentVoice
-                : voices.First();
-
-            _cancelationTokenSource.Cancel();
-            _cancelationTokenSource = new CancellationTokenSource();
-
-            await RunOnUIAsync(() =>
-                {
-                    ttsConfiguration.AvailableVoices.Clear();
-                    voices.ForEach(ttsConfiguration.AvailableVoices.Add);
-                }, _cancelationTokenSource.Token);
-
-            ttsConfiguration.CurrentVoice = currentVoice;
-        }
-
-        private Task RunOnUIAsync(Action action, CancellationToken token)
-        {
-            var taskFactory = new TaskFactory(
-                token,
-                TaskCreationOptions.DenyChildAttach,
-                TaskContinuationOptions.None,
-                _uiScheduler);
-
-            return taskFactory.StartNew(action);
-        }
     }
 }
