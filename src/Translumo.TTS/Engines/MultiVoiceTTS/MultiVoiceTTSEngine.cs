@@ -20,7 +20,11 @@ public class MultiVoiceTTSEngine : ITTSEngine
     {
         _langCode = langCode;
         _ttsFactory = ttsFactory;
+        Init();
     }
+
+    private void Init() => SetVoice(GetVoices().First());
+
 
     public void Dispose()
     {
@@ -56,7 +60,17 @@ public class MultiVoiceTTSEngine : ITTSEngine
 
     private static string GetConfigDirectory() => Path.Combine(Directory.GetCurrentDirectory(), CONFIG_DIRECTORY);
 
-    public void SetVoice(string voice) => LoadConfig(voice);
+    public void SetVoice(string voice)
+    {
+        try
+        {
+            LoadConfig(voice);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException($"Cant set voice '{voice}', error: {ex.Message}", ex);
+        }
+    }
 
     private void LoadConfig(string voice)
     {
@@ -85,7 +99,7 @@ public class MultiVoiceTTSEngine : ITTSEngine
         var characterName = string.Empty;
         if (match.Success)
         {
-            text = regex.Replace(text, "");        
+            text = regex.Replace(text, "");
             characterName = match.Groups[1].Value;
         }
 

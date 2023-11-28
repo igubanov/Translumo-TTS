@@ -213,8 +213,18 @@ namespace Translumo.MVVM.ViewModels
 
             var changeAction = () =>
             {
-                this.TtsSettings.CurrentVoice = voice;
-                OnPropertyChanged(nameof(CurrentVoice));
+                try
+                {
+                    this.TtsSettings.CurrentVoice = voice;
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(CurrentVoice));
+                }
             };
 
             var changeStage = StagesFactory.CreateLanguageChangeStages(_dialogService, changeAction, _logger);
