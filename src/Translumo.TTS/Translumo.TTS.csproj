@@ -22,8 +22,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="multi-voice-configs\y-broken.json" />
-  </ItemGroup>
-
 </Project>

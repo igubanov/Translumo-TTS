@@ -150,7 +150,9 @@ public class SileroTTSEngine : ITTSEngine
 
     public string[] GetVoices() => _voices;
 
-    public void SetVoice(string voice) => _voice = _voices.First(x => x.Equals(voice, StringComparison.OrdinalIgnoreCase));
+    public void SetVoice(string voice) =>
+        _voice = _voices.FirstOrDefault(x => x.Equals(voice, StringComparison.OrdinalIgnoreCase))
+       ?? throw new InvalidDataException($"Voice '{voice}' isnot supported");
 
     private sealed record ModelDescription(string FileUrl, string WarmUpText);
 }

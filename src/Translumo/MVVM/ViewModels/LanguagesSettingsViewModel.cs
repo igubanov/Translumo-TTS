@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
-using OpenCvSharp;
-using Serilog.Core;
 using Translumo.Dialog;
 using Translumo.Dialog.Stages;
 using Translumo.Infrastructure.Language;
@@ -294,12 +290,13 @@ namespace Translumo.MVVM.ViewModels
 
         public void UpdateVoice(IList<string> voices)
         {
-            var currentVoice = voices.Contains(CurrentVoice) ? CurrentVoice : voices.First();
             var previousVoices = AvailableVoices.ToArray();
 
             Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                voices.Except(previousVoices).ForEach(x => AvailableVoices.Add(x));
+                // TODO: this hack doesnt work, sometimes (when you switch between heavy tts)
+                // wpf may send CurrentVoice update with value from previous tts and not available in current
+                voices.Reverse().Except(previousVoices).ForEach(x => AvailableVoices.Insert(0, x));
                 previousVoices.Except(voices).ForEach(x => AvailableVoices.Remove(x));
             });
         }

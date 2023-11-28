@@ -25,11 +25,6 @@ public class MultiVoiceTTSEngine : ITTSEngine
 
     private void Init() => SetVoice(GetVoices().First());
 
-
-    public void Dispose()
-    {
-    }
-
     public string[] GetVoices()
     {
         if (_availableConfigs.Length != 0)
@@ -82,14 +77,7 @@ public class MultiVoiceTTSEngine : ITTSEngine
         var engineToRemove = Engines.Keys.Except(engines);
 
         engineToAdd.ForEach(x => Engines.Add(x, _ttsFactory.CreateTtsEngine(_langCode, x)));
-        engineToAdd.ForEach(RemoveEngine);
-    }
-
-    private void RemoveEngine(TTSEngines engine)
-    {
-        var removedEngine = Engines[engine];
-        Engines.Remove(engine);
-        removedEngine.Dispose();
+        engineToRemove.ForEach(RemoveEngine);
     }
 
     public void SpeechText(string text)
@@ -107,5 +95,17 @@ public class MultiVoiceTTSEngine : ITTSEngine
         var engine = Engines[characterConfig.Engine];
         engine.SetVoice(characterConfig.Voice);
         engine.SpeechText(text);
+    }
+
+    private void RemoveEngine(TTSEngines engine)
+    {
+        var removedEngine = Engines[engine];
+        Engines.Remove(engine);
+        removedEngine.Dispose();
+    }
+
+    public void Dispose()
+    {
+        Engines.Keys.ForEach(RemoveEngine);
     }
 }

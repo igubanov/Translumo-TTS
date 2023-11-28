@@ -1,0 +1,45 @@
+{
+	"RegexCharacterName": "[<](.+)[>]: ",
+	"voices": [
+		{
+			"engine": "WindowsTTS",
+			"voiceName": "Microsoft Irina",
+			"characterNames": [
+				"Vasya",
+				"Вася"
+			]
+		},
+		{
+			"engine": "YandexTTS",
+			"voiceName": "zahar",
+			"characterNames": [
+				"zahar","захар"
+			]
+		},
+		{
+			"engine": "YandexTTS",
+			"voiceName": "incorrect voice",
+			"characterNames": [
+				"incorrect voice","сломано"
+			]
+		},
+		{
+			"engine": "SileroTTS",
+			"voiceName": "random",
+			"characterNames": [
+				"random","рандом"
+			]
+		},
+		{
+			"engine": "WindowsTTS",
+			"voiceName": "Microsoft Pavel",
+			"characterNames": [
+				"Sergei",
+				"Сергей",
+				"Сертей",
+				"сертей",
+				"сергей"
+			]
+		}
+	]
+}
